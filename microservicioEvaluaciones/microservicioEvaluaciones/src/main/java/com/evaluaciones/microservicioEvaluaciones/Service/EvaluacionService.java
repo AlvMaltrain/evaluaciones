@@ -34,4 +34,9 @@ public class EvaluacionService {
         public void eliminar(Long id) {
         evaluacionRepository.deleteById(id);
         }
+        
+        //Buscar por cursoID
+        public List<Evaluacion> obtenerPorCursoId(Long cursoId) {
+        return evaluacionRepository.findByCursoId(cursoId);
+}
 }

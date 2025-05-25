@@ -108,4 +108,13 @@ public ResponseEntity<Void> eliminarEvaluacion(@PathVariable Long id) {
     }
 }
 
+@GetMapping("/curso/{cursoId}")
+public ResponseEntity<List<Evaluacion>> obtenerEvaluacionesPorCursoId(@PathVariable Long cursoId) {
+    List<Evaluacion> evaluaciones = evaluacionService.obtenerPorCursoId(cursoId);
+    if (evaluaciones.isEmpty()) {
+        return ResponseEntity.noContent().build();
+    }
+    return ResponseEntity.ok(evaluaciones);
+}
+
 }
