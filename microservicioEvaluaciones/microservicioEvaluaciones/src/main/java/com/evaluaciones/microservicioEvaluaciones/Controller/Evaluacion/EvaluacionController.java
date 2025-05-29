@@ -36,9 +36,15 @@ public class EvaluacionController {
      * @return Lista de todas las evaluaciones
      */
     @GetMapping
-    public List<Evaluacion> obtenerTodasLasEvaluaciones(){
-        return evaluacionService.obtenerTodas();
-    } 
+public ResponseEntity<?> obtenerTodasLasEvaluaciones() {
+    try {
+        List<Evaluacion> evaluaciones = evaluacionService.obtenerTodas();
+        return ResponseEntity.ok(evaluaciones);
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("Error al obtener las evaluaciones: " + e.getMessage());
+    }
+}
 
     /**
      * Obtener una evaluación por su ID.
@@ -48,10 +54,20 @@ public class EvaluacionController {
      * @return La evaluación encontrada o error 404 si es que no existe
      */
     @GetMapping("/{id}")
-    public Evaluacion obtenerEvaluacionPorId(@PathVariable Long id) {
-        return evaluacionService.obtenerPorId(id)
-                .orElseThrow(() -> new RuntimeException("Evaluacion no encontrada con ID" + id));
+public ResponseEntity<?> obtenerEvaluacionPorId(@PathVariable Long id) {
+    try {
+        Optional<Evaluacion> evaluacion = evaluacionService.obtenerPorId(id);
+        if (evaluacion.isPresent()) {
+            return ResponseEntity.ok(evaluacion.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Evaluación no encontrada con ID: " + id);
+        }
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error al obtener evaluación: " + e.getMessage());
     }
+}
 
     /**
      * Crear una nueva evaluación.
@@ -75,21 +91,27 @@ public class EvaluacionController {
      * @return Evaluación actualizada o error 404 si es que no existe
      */
  @PutMapping("/{id}")
-public ResponseEntity<Evaluacion> actualizarEvaluacion(@PathVariable Long id, @RequestBody Evaluacion evaluacion) {
-    Optional<Evaluacion> existente = evaluacionService.obtenerPorId(id);
-    if (existente.isPresent()) {
-        Evaluacion actual = existente.get();
-        actual.setTitulo(evaluacion.getTitulo());
-        actual.setDescripcion(evaluacion.getDescripcion());
-        actual.setFecha(evaluacion.getFecha());
-        actual.setCursoId(evaluacion.getCursoId());
+public ResponseEntity<?> actualizarEvaluacion(@PathVariable Long id, @RequestBody Evaluacion evaluacion) {
+    try {
+        Optional<Evaluacion> existente = evaluacionService.obtenerPorId(id);
+        if (existente.isPresent()) {
+            Evaluacion actual = existente.get();
+            actual.setTitulo(evaluacion.getTitulo());
+            actual.setDescripcion(evaluacion.getDescripcion());
+            actual.setFecha(evaluacion.getFecha());
+            actual.setCursoId(evaluacion.getCursoId());
 
-        return ResponseEntity.ok(evaluacionService.guardar(actual));
-    } else {
-        return ResponseEntity.notFound().build();
+            Evaluacion actualizada = evaluacionService.guardar(actual);
+            return ResponseEntity.ok(actualizada);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Evaluación no encontrada con ID: " + id);
+        }
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error al actualizar evaluación: " + e.getMessage());
     }
-
-} 
+}
     /**
      * Eliminar una evaluación por ID.
      * Método HTTP: DELETE
@@ -97,24 +119,35 @@ public ResponseEntity<Evaluacion> actualizarEvaluacion(@PathVariable Long id, @R
      * @param id ID de la evaluación a eliminar
      * @return Código 204 si se eliminó o 404 si es que no existe
      */
-    @DeleteMapping("/{id}")
-public ResponseEntity<Void> eliminarEvaluacion(@PathVariable Long id) {
-    Optional<Evaluacion> existente = evaluacionService.obtenerPorId(id);
-    if (existente.isPresent()) {
-        evaluacionService.eliminar(id);
-        return ResponseEntity.noContent().build(); // 204 No Content
-    } else {
-        return ResponseEntity.notFound().build(); // 404 Not Found
+@DeleteMapping("/{id}")
+public ResponseEntity<?> eliminarEvaluacion(@PathVariable Long id) {
+    try {
+        Optional<Evaluacion> existente = evaluacionService.obtenerPorId(id);
+        if (existente.isPresent()) {
+            evaluacionService.eliminar(id);
+            return ResponseEntity.noContent().build(); // 204 No Content
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body("Evaluación no encontrada con ID: " + id);
+        }
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("Error al eliminar la evaluación: " + e.getMessage());
     }
 }
 
 @GetMapping("/curso/{cursoId}")
-public ResponseEntity<List<Evaluacion>> obtenerEvaluacionesPorCursoId(@PathVariable Long cursoId) {
-    List<Evaluacion> evaluaciones = evaluacionService.obtenerPorCursoId(cursoId);
-    if (evaluaciones.isEmpty()) {
-        return ResponseEntity.noContent().build();
+public ResponseEntity<?> obtenerEvaluacionesPorCursoId(@PathVariable Long cursoId) {
+    try {
+        List<Evaluacion> evaluaciones = evaluacionService.obtenerPorCursoId(cursoId);
+        if (evaluaciones.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body("No se encontraron evaluaciones para el curso con ID: " + cursoId);
+        }
+        return ResponseEntity.ok(evaluaciones);
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("Error al obtener evaluaciones por curso: " + e.getMessage());
     }
-    return ResponseEntity.ok(evaluaciones);
 }
-
 }
