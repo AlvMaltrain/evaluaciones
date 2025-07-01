@@ -15,7 +15,6 @@ public class EvaluacionService {
     private final EvaluacionRepository evaluacionRepository;
     private final UsuarioClientService usuarioClientService;
 
-    // Constructor para inyección de dependencias (repositorio y cliente usuario)
     public EvaluacionService(EvaluacionRepository evaluacionRepository, UsuarioClientService usuarioClientService) {
         this.evaluacionRepository = evaluacionRepository;
         this.usuarioClientService = usuarioClientService;
@@ -46,16 +45,16 @@ public class EvaluacionService {
         return evaluacionRepository.findByCursoId(cursoId);
     }
 
-    //Ejemplo de uso del cliente REST para obtener usuario
+    //Uso del cliente REST para obtener usuario
     public void ejemploConsultaUsuario(Long idUsuario) {
         UsuarioDTO usuario = usuarioClientService.obtenerUsuarioPorId(idUsuario);
 
         if (usuario != null) {
             System.out.println("Usuario encontrado: " + usuario.getNombre());
-            // Aquí puedes agregar lógica para crear o actualizar evaluaciones con datos del usuario
+            
         } else {
             System.out.println("Usuario no encontrado.");
-            // Manejar el caso usuario no encontrado
+        
         }
     }
     

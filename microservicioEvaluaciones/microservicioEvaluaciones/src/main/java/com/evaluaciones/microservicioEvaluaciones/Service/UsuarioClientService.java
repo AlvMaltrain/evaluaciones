@@ -10,7 +10,7 @@ import com.evaluaciones.microservicioEvaluaciones.DTO.UsuarioDTO;
 public class UsuarioClientService {
 
     private final RestTemplate restTemplate;
-    private final String usuariosBaseUrl = "http://localhost:8081/edutech-service/api/edutech"; // ajusta si usas otro puerto
+    private final String usuariosBaseUrl = "http://localhost:8081/edutech-service/api/edutech"; 
 
     public UsuarioClientService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
